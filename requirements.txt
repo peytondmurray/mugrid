@@ -1,0 +1,6 @@
+numpy
+numba
+scipy
+matplotlib
+PyQt5
+pytest
