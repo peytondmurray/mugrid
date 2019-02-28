@@ -34,6 +34,7 @@ def VMG(A, v0, f, w, nu_1=10, nu_2=20, depth=-1):
         v_2h = np.zeros(int((N-1)/2))
         f_2h = I_2hh@(f-A@v)
         v_2h = VMG(A_2h, v_2h, f_2h, w, nu_1, nu_2, depth-1)
+        v += I_h2h@v_2h
 
     v = weighted_jacobi(A, v, f, w, nu_1=nu_1)
     return v
@@ -51,8 +52,9 @@ def FMG(A, v0, f, w, nu_0, nu_1, nu_2):
 
         A_2h = I_2hh@A@I_h2h
         v_2h = np.zeros(int((N-1)/2))
-        f_2h = I_2hh@(f-A@v)
+        f_2h = I_2hh@(f-A@v0)
         v_2h = FMG(A_2h, v_2h, f_2h, w, nu_0, nu_1, nu_2)
+        v = v0 + I_h2h@v_2h
 
     for _ in range(nu_0):
         v = VMG(A, v, f, w, nu_1, nu_2, depth=-1)

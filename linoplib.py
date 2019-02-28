@@ -58,3 +58,11 @@ def full_weighting(N):
     transpose of the prolongation operator (up to a factor).
     """
     return np.transpose(prolongation(N))*0.5
+
+
+def print_good_grid_sizes(N):
+    a = 3
+    yield a
+    for _ in range(N):
+        a = 2*a + 1
+        yield a
