@@ -62,7 +62,7 @@ def full_weighting(N):
 
 def print_good_grid_sizes(N):
     a = 3
-    yield a
     for _ in range(N):
+        print(a)
         a = 2*a + 1
-        yield a
+    print(a)

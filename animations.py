@@ -10,7 +10,7 @@ def gaussian(x, offset, amp, std):
 
 
 def F(_f):
-    f = _f.copy()
+    f = -1*_f.copy()
     f[1] -= f[0]
     f[-1] -= f[-2]
     return f[1:-1]
@@ -20,29 +20,27 @@ N = 129
 x = np.linspace(0, 50e-9, N)
 A = linoplib.laplacian_LDO(N)
 v = np.zeros((n_iter, x.shape[0]))
-v[0] = np.sin(np.pi*x/x[-1])
+# v[0] = np.sin(10*np.pi*x/x[-1])
 f = gaussian(x, 0, 0.5e-2, 5e-9)
 
 v[:, 1:-1] = visual_solvers.weighted_jacobi(A, v[:, 1:-1], F(f), 0.667, n_iter)
 
-print(np.min(v))
-
 fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
 
-ax[0].set_xlabel('x')
-ax[0].set_ylabel('f')
-ax[1].set_xlabel('x')
-ax[1].set_ylabel('v')
+
+font_size = 16
+
+ax[0].set_xlabel('$x$', size=font_size)
+ax[0].set_ylabel('$f$', size=font_size)
+ax[1].set_xlabel('$x$', size=font_size)
+ax[1].set_ylabel('$v$', size=font_size)
 
 ax[0].plot(x, f, '-b')
-# ax[1].plot(x, v[0], '-r')
 
-ax[0].text(0.1, 0.4, '$f$', transform=ax[0].transAxes, color='b', fontsize=20)
-ax[0].text(0.1, 0.1, '$Av$', transform=ax[0].transAxes, fontsize=20)
-# ax[1].text(0.1, 0.9, '$v^0$', transform=ax[1].transAxes, fontsize=20, color='r')
-# ax[1].text(0.1, 0.9, '$v^0$(x)$', transform=ax[1].transAxes, fontsize=20)
+ax[0].text(0.1, 0.4, '$f$', transform=ax[0].transAxes, color='b', fontsize=font_size)
+ax[0].text(0.1, 0.1, '$Av$', transform=ax[0].transAxes, fontsize=font_size)
 
-iter_text = ax[0].text(0.13, 0.95, '', transform=ax[0].transAxes, fontsize=20)
+iter_text = ax[0].text(0.18, 0.90, '', transform=ax[0].transAxes, fontsize=font_size)
 line_v, = ax[1].plot(x, v[0], '-k')
 line_f, = ax[0].plot(x[1:-1], A@v[0, 1:-1], '-k')
 
@@ -71,7 +69,5 @@ ani = animation.FuncAnimation(fig,
                               blit=True,
                               save_count=n_iter)
 
-# ani.to_html5_video()
-ani.save('jacobi.mp4', fps=600, dpi=200)
-
+ani.save('jacobi_zeros.mp4', fps=60, dpi=200, extra_args=['-vcodec', 'libx264'])
 # plt.show()

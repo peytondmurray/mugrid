@@ -64,3 +64,6 @@ def FMG(A, v0, f, w, nu_0, nu_1, nu_2):
 
 def direct(A, v0, f):
     return np.linalg.inv(A)@f
+
+def error(A, v, f):
+    return f-A@v
