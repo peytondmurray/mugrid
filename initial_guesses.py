@@ -42,7 +42,7 @@ v = solvers.weighted_jacobi(A, v0[1:-1], f[1:-1], 0.667, 100)
 
 font_size = 16
 
-fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(10, 4))
+fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6, 6))
 ax.set_ylabel('$f$', size=font_size)
 ax.set_xlabel('$x$', size=font_size)
 ax.plot(x, f, '-k', label='f')
@@ -51,5 +51,5 @@ ax.plot(x[1:-1], A@v, '-b', label='$Av$ ($h$ grid)')
 ax.legend(fontsize=font_size)
 ax.text(0.1, 0.8, '100 Jacobi Iterations', transform=ax.transAxes, fontsize=font_size)
 
-plt.show()
-# plt.savefig('coarse_grid_jacobi.svg', bbox_inches='tight')
+# plt.show()
+plt.savefig('coarse_grid_jacobi.svg', bbox_inches='tight')
