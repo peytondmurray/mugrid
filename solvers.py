@@ -1,4 +1,5 @@
 import numpy as np
+import numba as nb
 import linoplib
 
 
@@ -6,12 +7,13 @@ def jacobi(A, v0, f, nu_1=1):
     return weighted_jacobi(A, v0, f, 1, nu_1)
 
 
+@nb.jit(nopython=True)
 def weighted_jacobi(A, v0, f, w, nu_1):
 
     v = v0.copy()
     diag = np.diag(A)
-    D = np.diagflat(diag)
-    D_inv = np.diagflat(1/diag)
+    D = np.diag(diag)
+    D_inv = np.diag(1/diag)
     L_plus_U = D-A
 
     for _ in range(nu_1):
@@ -64,6 +66,7 @@ def FMG(A, v0, f, w, nu_0, nu_1, nu_2):
 
 def direct(A, v0, f):
     return np.linalg.inv(A)@f
+
 
 def error(A, v, f):
     return f-A@v

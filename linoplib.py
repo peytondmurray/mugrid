@@ -1,6 +1,8 @@
 import numpy as np
+import numba as nb
 
 
+@nb.jit(nopython=True)
 def laplacian_LDO(N):
     """Generate the laplacian linear differential operator for a grid with N points.
     """
@@ -60,9 +62,9 @@ def full_weighting(N):
     return np.transpose(prolongation(N))*0.5
 
 
-def print_good_grid_sizes(N):
-    a = 3
-    for _ in range(N):
-        print(a)
-        a = 2*a + 1
-    print(a)
+def get_good_grid_sizes(N):
+    a = np.zeros(N+1, dtype=int)
+    a[0] = 7
+    for i in range(1, N+1):
+        a[i] = int(2*a[i-1] + 1)
+    return a
