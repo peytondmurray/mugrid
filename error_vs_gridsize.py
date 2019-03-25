@@ -3,6 +3,7 @@ import numba as nb
 import matplotlib.pyplot as plt
 import solvers
 import linoplib
+import tqdm
 
 
 @nb.jit(nopython=True)
@@ -18,13 +19,14 @@ def F(_f):
     return f[1:-1]
 
 
-@nb.jit(nopython=True, parallel=True)
+# @nb.jit(nopython=True, parallel=True)
 def get_sum_sq_error(grid_sizes):
 
     sse = np.zeros_like(grid_sizes)
 
-    for i in nb.prange(grid_sizes.shape[0]):
+    for i in tqdm.trange(grid_sizes.shape[0]):
         N = grid_sizes[i]
+        # print(N)
 
         x = np.linspace(0, 50e-9, N)
         A = -linoplib.laplacian_LDO(N)
@@ -43,27 +45,21 @@ def get_sum_sq_error(grid_sizes):
 
 if __name__ == "__main__":
 
-    n_grids = 20
+    n_grids = 9
 
     grid_labels = [''] + [2**n for n in range(1, n_grids)]
     grid_sizes = linoplib.get_good_grid_sizes(n_grids)
     error = get_sum_sq_error(grid_sizes)
-    # error = [get_sum_sq_error(value) for value in grid_sizes]
 
     # Original grid
     x = np.linspace(0, 50e-9, grid_sizes[-1])
     f = gaussian(x, 0, 1, 5e-9)
 
     fig, ax = plt.subplots(figsize=(10, 4))
-    ax.plot(np.log2(grid_sizes), np.log10(error), '-ok')
+    ax.plot(grid_sizes, error, '-ok')
     font_size = 16
-    ax.set_ylabel('$log(\Sigma (f-Av)^2)$', size=font_size)
-    ax.set_xlabel('$log_2(N)$', size=font_size)
-    # ax.set_ylabel('$f$', size=font_size)
-    # ax.set_xlabel('$x$', size=font_size)
-    # ax.plot(x, f, '-k', label='f')
-    # ax.legend(fontsize=font_size)
-    # ax.text(0.1, 0.8, '100 Jacobi Iterations', transform=ax.transAxes, fontsize=font_size)
+    ax.set_ylabel('$\Sigma (f-Av)^2$', size=font_size)
+    ax.set_xlabel('$N$', size=font_size)
 
-    # plt.show()
-    plt.savefig('error_vs_gridsize.svg', bbox_inches='tight')
+    plt.show()
+    # plt.savefig('error_vs_gridsize.svg', bbox_inches='tight')
