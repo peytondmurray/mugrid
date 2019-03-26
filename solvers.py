@@ -13,16 +13,42 @@ def weighted_jacobi(A, v0, f, w, nu_1):
     v = v0.copy()
     diag = np.diag(A)
     D = np.diag(diag)
-    D_inv = np.diag(1/diag)
-    L_plus_U = D-A
+    Q = D-A
 
     for _ in range(nu_1):
-        v = (1-w)*v + w*D_inv@(f + L_plus_U@v)
+        v = (1-w)*v + w*(f + Q@v)/diag
 
     return v
 
 
-def VMG(A, v0, f, w, nu_1=10, nu_2=20, depth=-1):
+# @nb.jit(nopython=True)
+def VMG(A, v0, f, w, nu_1=10, nu_2=10, depth=-1):
+    """V-cycle multigrid solver. Solves Av = f.
+
+    Parameters
+    ----------
+    A : np.ndarray
+        Linear differential operator (Av = f).
+    v0 : np.ndarray
+        Initial guess for the solution to (Av = f)
+    f : np.ndarray
+        Forcing function (Av = f)
+    w : float
+        Jacobi weighting factor. Usually set to 2/3
+    nu_1 : int, optional
+        Number of jacobi iterations before each coarsening grid spacing step.
+    nu_2 : int, optional
+        Number of jacobi iterations at each de-coarsening grid spacing step.
+    depth : int, optional
+        Number of grid coarsening steps to take. Leave as -1 except for debugging.
+
+    Returns
+    -------
+    np.ndarray
+        1D array containing the solution.
+    """
+
+    print(f'\t{depth}')
 
     N = v0.shape[0]
     v = weighted_jacobi(A, v0, f, w, nu_1=nu_1)
@@ -38,11 +64,12 @@ def VMG(A, v0, f, w, nu_1=10, nu_2=20, depth=-1):
         v_2h = VMG(A_2h, v_2h, f_2h, w, nu_1, nu_2, depth-1)
         v += I_h2h@v_2h
 
-    v = weighted_jacobi(A, v, f, w, nu_1=nu_1)
+    v = weighted_jacobi(A, v, f, w, nu_1=nu_2)
     return v
 
 
-def FMG(A, v0, f, w, nu_0, nu_1, nu_2):
+@nb.jit(nopython=True)
+def FMG(A, v0, f, w, nu_0=1, nu_1=10, nu_2=10):
 
     N = v0.shape[0]
 

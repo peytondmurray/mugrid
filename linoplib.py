@@ -21,6 +21,7 @@ def laplacian_LDO(N):
     return A
 
 
+@nb.jit(nopython=True)
 def prolongation(N):
     """Generates the interpolation operator for going from a grid with (N-1)/2 points to a grid with N points:
 
@@ -35,13 +36,6 @@ def prolongation(N):
 
     """
 
-    if int(N) != N:
-        raise ValueError(f'int({int(N)}) != {N}: N must be integer')
-    elif int(N) % 2 == 0:
-        raise ValueError('Grid with even number of points cannot be interpolated.')
-    else:
-        N = int(N)
-
     I = np.zeros((N, int((N-1)/2)))
     I[0, 0] = 0.5
     I[-1, -1] = 0.5
@@ -55,6 +49,7 @@ def prolongation(N):
     return I
 
 
+@nb.jit(nopython=True)
 def full_weighting(N):
     """Returns the restriction operator for going from a grid with 2N points to a grid with N points. This is just the
     transpose of the prolongation operator (up to a factor).
