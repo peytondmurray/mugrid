@@ -21,14 +21,13 @@ def F(_f):
 def main():
     font_size = 16
     fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(16, 6), sharex=True, sharey=True)
-    grid_sizes = linoplib.get_good_grid_sizes(8)
+    grid_sizes = linoplib.get_good_grid_sizes(10)
 
     err_jac = []
     err_vmg = []
     err_fmg = []
 
     for N in grid_sizes:
-        print(N)
         x = np.linspace(0, 50e-9, N)
         A = linoplib.laplacian_LDO(N)
         v0 = np.zeros_like(x)
@@ -37,24 +36,25 @@ def main():
         w = 0.667
 
         t0 = time.time()
-        # v_jac = solvers.weighted_jacobi(A, v0[1:-1], f[1:-1], w, 1000)
+        v_jac = solvers.weighted_jacobi(A, v0[1:-1], f[1:-1], w, 1000)
         t1 = time.time()
-        v_vmg = solvers.VMG(A, v0[1:-1], f[1:-1], w, nu_1=380, nu_2=380)
+        v_vmg = solvers.VMG(A, v0[1:-1], f[1:-1], w, nu_1=10, nu_2=10)
         t2 = time.time()
-        # v_fmg = solvers.FMG(A, v0[1:-1], f[1:-1], w, nu_0=2, nu_1=400, nu_2=15)
+        v_fmg = solvers.FMG(A, v0[1:-1], f[1:-1], w, nu_0=1, nu_1=10, nu_2=10)
         t3 = time.time()
 
-        # err_jac.append(np.sum((f[1:-1] - A@v_jac)**2))
-        # err_vmg.append(np.sum((f[1:-1] - A@v_vmg)**2))
-        # err_fmg.append(np.sum((f[1:-1] - A@v_fmg)**2))
+        err_jac.append(np.sum((f[1:-1] - A@v_jac)**2))
+        err_vmg.append(np.sum((f[1:-1] - A@v_vmg)**2))
+        err_fmg.append(np.sum((f[1:-1] - A@v_fmg)**2))
 
-        # print(f'{N}:\t{t1-t0:+3f}\t{t2-t1:+3f}\t{t3-t2:+3f}')
+        print(f'{N}:\t{t1-t0:+3f}\t{t2-t1:+3f}\t{t3-t2:+3f}')
+        # print(f'{N}:\t-------\t{t2-t1:+3f}\t{t3-t2:+3f}')
 
-    # ax.plot(grid_sizes, err_jac, '-ok', label='Jacobi')
-    # ax.plot(grid_sizes, err_vmg, '-or', label='VMG')
-    # ax.plot(grid_sizes, err_fmg, '-ob', label='FMG')
+    ax.plot(grid_sizes, err_jac, '-ok', label='Jacobi')
+    ax.plot(grid_sizes, err_vmg, '-or', label='VMG')
+    ax.plot(grid_sizes, err_fmg, '-ob', label='FMG')
 
-    # plt.show()
+    plt.show()
     # plt.savefig('coarse_grid_jacobi.svg', bbox_inches='tight')
 
 if __name__ == '__main__':

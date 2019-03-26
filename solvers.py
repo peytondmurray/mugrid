@@ -4,11 +4,35 @@ import linoplib
 
 
 def jacobi(A, v0, f, nu_1=1):
+    """If for some reason you want to use the original Jacobi solver (not the weighted version), it's implemented here.
+    As I understand it, there's no reason you'd want this for solving Av=f.
+    """
+
     return weighted_jacobi(A, v0, f, 1, nu_1)
 
 
 @nb.jit(nopython=True)
 def weighted_jacobi(A, v0, f, w, nu_1):
+    """Weighted Jacobi solver.
+
+    Parameters
+    ----------
+    A : np.ndarray
+        Linear differential operator (Av = f).
+    v0 : np.ndarray
+        Initial guess for the solution to (Av = f)
+    f : np.ndarray
+        Forcing function (Av = f)
+    w : float
+        Jacobi weighting factor. Usually set to 2/3.
+    nu_1 : int, optional
+        Number of iterations to carry out.
+
+    Returns
+    -------
+    np.ndarray
+        1D array containing the solution.
+    """
 
     v = v0.copy()
     diag = np.diag(A)
@@ -21,7 +45,7 @@ def weighted_jacobi(A, v0, f, w, nu_1):
     return v
 
 
-# @nb.jit(nopython=True)
+@nb.jit(nopython=True)
 def VMG(A, v0, f, w, nu_1=10, nu_2=10, depth=-1):
     """V-cycle multigrid solver. Solves Av = f.
 
@@ -48,8 +72,6 @@ def VMG(A, v0, f, w, nu_1=10, nu_2=10, depth=-1):
         1D array containing the solution.
     """
 
-    print(f'\t{depth}')
-
     N = v0.shape[0]
     v = weighted_jacobi(A, v0, f, w, nu_1=nu_1)
 
@@ -70,6 +92,30 @@ def VMG(A, v0, f, w, nu_1=10, nu_2=10, depth=-1):
 
 @nb.jit(nopython=True)
 def FMG(A, v0, f, w, nu_0=1, nu_1=10, nu_2=10):
+    """Full multigrid solver. Solves Av = f.
+
+    Parameters
+    ----------
+    A : np.ndarray
+        Linear differential operator (Av = f).
+    v0 : np.ndarray
+        Initial guess for the solution to (Av = f)
+    f : np.ndarray
+        Forcing function (Av = f)
+    w : float
+        Jacobi weighting factor. Usually set to 2/3
+    nu_0 : int, optional
+        Number of times to call the VMG method at each grid spacing step.
+    nu_1 : int, optional
+        Number of jacobi iterations before each coarsening grid spacing step.
+    nu_2 : int, optional
+        Number of jacobi iterations at each de-coarsening grid spacing step.
+
+    Returns
+    -------
+    np.ndarray
+        1D array containing the solution.
+    """
 
     N = v0.shape[0]
 
@@ -92,8 +138,13 @@ def FMG(A, v0, f, w, nu_0=1, nu_1=10, nu_2=10):
 
 
 def direct(A, v0, f):
+    """Directly solve Av=f by calling numpy.
+    """
+
     return np.linalg.inv(A)@f
 
 
 def error(A, v, f):
+    """Compute the error, given A, v, and f.
+    """
     return f-A@v

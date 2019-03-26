@@ -4,7 +4,15 @@ import numba as nb
 
 @nb.jit(nopython=True)
 def laplacian_LDO(N):
-    """Generate the laplacian linear differential operator for a grid with N points.
+    """Generate the laplacian linear differential operator for a grid with N points:
+
+        -2      1       0       0
+        1       -2      1       0
+        0       1       -2      1  .  .  .
+                .
+                .
+                .
+
     """
 
     A = np.zeros((N-2, N-2))
@@ -58,8 +66,13 @@ def full_weighting(N):
 
 
 def get_good_grid_sizes(N):
+    """Return an array of length N containing good grid sizes to use for multigrid. If you use a grid which cannot be
+    coarsened by the VMG or FMG solvers, you won't see any speedup over Jacobi iteration alone. The grid sizes given
+    by this function can be coarsened multiple times, making them ideal for use with multigrid.
+    """
+
     a = np.zeros(N+1, dtype=int)
     a[0] = 7
     for i in range(1, N+1):
         a[i] = int(2*a[i-1] + 1)
-    return a
+    return a+2
