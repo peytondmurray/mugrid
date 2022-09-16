@@ -9,4 +9,4 @@ The two main files are
 
 In the workspace directory, you'll find a bunch of scripts which I used to generate the plots in the article I wrote.
 
-[post]: https://peytondmurray.github.io/coding/multigrid-solve-odes/
+[post]: https://peytondmurray.netlify.app/blog/2019-02-12-multigrid-solve-odes/
